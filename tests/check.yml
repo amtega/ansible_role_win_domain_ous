@@ -1,0 +1,23 @@
+---
+
+- name: Check test parameters existence
+  assert:
+    that:
+      - win_domain_ous_tests_ad_ou is defined
+
+- name: Ensure win_domain_ous could use RSAT
+  block:
+    - name: Ensure the RSAT-AD-PowerShell feature is installed
+      win_feature:
+        name:
+          - RSAT-AD-PowerShell
+        state: present
+      register: ad_feature_result
+      failed_when: false # HACK Fails in windows 10
+
+    - name: Reboot host if required
+      win_reboot:
+      when: ad_feature_result.reboot_required | default(False)
+
+    - name: Win ping
+      win_ping:

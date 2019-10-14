@@ -1,2 +1,35 @@
 ---
 # Role default lower priority variables
+
+# List of dicts with OUs to configure. The have the following structure:
+#
+# {
+#   name: <name>
+#   path: <path>
+#   description: <description>
+#   managed_by: <managed_by>
+#   protected_from_accidental_deletion: <yes_no>
+#   state: <state>
+#   domain_server: <server>
+#   recursive: <yes_no>                           # For state=absent
+# }
+#
+# Example:
+#
+# win_domain_ous:
+#   name: Commoners
+#   path: "OU=Black Casltle,DC=medieval,DC=time"
+#   description: Black Castle serfs.
+#   managed_by: "CN=Lord Black,OU=Black Casltle,DC=medieval,DC=time"
+#   protected_from_accidental_deletion: yes
+#   state: present
+#   domain_server: myserver
+#   recursive: yes
+
+win_domain_ous: []
+
+# Dicitionary with the defaults options to use if no other ones are specified in
+# the `win_domain_ous` variable. The members of the dict are the same
+# attributes that the ones expected by the ansible win_domain_user module
+
+win_domain_ous_defaults: {}
