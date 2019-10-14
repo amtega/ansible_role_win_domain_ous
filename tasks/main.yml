@@ -1,2 +1,70 @@
 ---
 # Role tasks
+
+- name: Check availability of cmdlets
+  win_shell: |
+    if (
+        (Get-Command -Name Get-ADOrganizationalUnit -ErrorAction SilentlyContinue) `
+        -and `
+        (Get-Command -Name Set-ADOrganizationalUnit -ErrorAction SilentlyContinue) `
+        -and `
+        (Get-Command -Name New-ADOrganizationalUnit -ErrorAction SilentlyContinue) `
+        -and `
+        (Get-Command -Name Remove-ADOrganizationalUnit -ErrorAction SilentlyContinue) `
+    ) {
+        $true
+    } else {
+        $false
+    }
+  register: win_domain_ous_cmdlets_check
+  changed_when: no
+  check_mode: no
+  tags:
+    - role::win_domain_ous
+    - role::win_domain_ous::check
+
+- name: Assert availability of cmdlets
+  assert:
+    that:
+      - (win_domain_ous_cmdlets_check.stdout | trim | bool)
+
+- name: Setup windows organizational units (OU)
+  win_domain_ous:
+    name: >-
+      {{ win_domain_ous_item.name
+         | default(win_domain_ous_defaults.name)
+         | default(omit) }}
+    path: >-
+      {{ win_domain_ous_item.path
+         | default(win_domain_ous_defaults.path)
+         | default(omit) }}
+    description: >-
+      {{ win_domain_ous_item.description
+         | default(win_domain_ous_defaults.description)
+         | default(omit) }}
+    managed_by: >-
+      {{ win_domain_ous_item.managed_by
+         | default(win_domain_ous_defaults.managed_by)
+         | default(omit) }}
+    protected_from_accidental_deletion: >-
+      {{ win_domain_ous_item.protected_from_accidental_deletion
+         | default(win_domain_ous_defaults.protected_from_accidental_deletion)
+         | default(omit) }}
+    domain_server: >-
+      {{ win_domain_ous_item.domain_server
+         | default(win_domain_ous_defaults.domain_server)
+         | default(omit) }}
+    recursive: >-
+      {{ win_domain_ous_item.recursive
+         | default(win_domain_ous_defaults.recursive)
+         | default(omit) }}
+    state: >-
+      {{ win_domain_ous_item.state
+         | default(win_domain_ous_defaults.state)
+         | default(omit) }}
+  loop: "{{ win_domain_ous }}"
+  loop_control:
+    loop_var: win_domain_ous_item
+    label: "{{ win_domain_ous_item.name }}"
+  tags:
+    - role::win_domain_ous

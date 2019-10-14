@@ -1,0 +1,44 @@
+---
+
+- name: Create several OUs
+  include_role:
+    name: amtega.win_domain_ous
+  vars:
+    win_domain_ous_defaults:
+      path: "{{ test_path }}"
+      protected_from_accidental_deletion: no
+
+    win_domain_ous:
+      - name: "{{ test_name }}_a"
+        state: present
+      - name: "{{ test_name }}_b"
+        state: present
+
+- name: Modify several OUs
+  include_role:
+    name: amtega.win_domain_ous
+  vars:
+    win_domain_ous_defaults:
+      path: "{{ test_path }}"
+
+    win_domain_ous:
+      - name: "{{ test_name }}_a"
+        description: Test OU, branch A
+        managed_by: Administrator
+        state: present
+      - name: "{{ test_name }}_b"
+        description: Test OU, branch B
+        state: present
+
+- name: Remove several OUs
+  include_role:
+    name: amtega.win_domain_ous
+  vars:
+    win_domain_ous_defaults:
+      path: "{{ test_path }}"
+
+    win_domain_ous:
+      - name: "{{ test_name }}_a"
+        state: absent
+      - name: "{{ test_name }}_b"
+        state: absent

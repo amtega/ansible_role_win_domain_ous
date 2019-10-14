@@ -1,2 +1,26 @@
 ---
 # Tasks for testing role
+
+- name: Run win_domain_ous test
+  hosts: "{{ win_domain_ous_tests_host }}"
+  vars:
+    test_name: "win_domain_ous_test"
+    test_path: "{{ win_domain_ous_tests_ad_ou }}"
+    test_managed_by: "{{ win_domain_ous_tests_managed_by }}"
+    test_description: Test OU. Ansible managed.
+  tasks:
+
+    - import_tasks: check.yml
+      tags:
+        - test::win_domain_ous
+        - test::win_domain_ous::pre-check
+
+    - import_tasks: module.yml
+      tags:
+        - test::win_domain_ous
+        - test::win_domain_ous::module
+
+    - import_tasks: role.yml
+      tags:
+        - test::win_domain_ous
+        - test::win_domain_ous::role
