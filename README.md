@@ -1,96 +1,59 @@
-# Ansible <!-- this role name --> role
+# Ansible win_domain_ous
 
-This is an [Ansible](http://www.ansible.com) role which <!-- brief description of the role goes here -->.
-
-## Requirements
-
-<!-- Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required. For example: -->
-
-[Ansible 2.7+](http://docs.ansible.com/ansible/latest/intro_installation.html)
+This is an [Ansible](http://www.ansible.com) role which setups windows active directory organizational units.
 
 ## Role Variables
 
-<!-- A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well. For example: -->
-
 A list of all the default variables for this role is available in `defaults/main.yml`.
-
-The role also setups the following facts:
-
-- `thisrole_fact1`: description of the fact
-- `thisrole_fact2`: description of the fact
-- `thisrole_factN`: description of the fact
-
-## Filters
-
-<!-- A description of the filters provided by the role should go here. For example: -->
-
-The role provides these filters:
-
-- `thisrole_filter1`: description of the filter
-- `thisrole_filter2`: description of the filter
-- `thisrole_filterN`: description of the filter
 
 ## Modules
 
-<!-- A description of the modules provided by the role should go here. For example: -->
-
 The role provides these modules:
 
-- `thisrole_module1`: description of the module
-- `thisrole_module2`: description of the module
-- `thisrole_moduleN`: description of the module
-
-## Tests
-
-<!-- A description of the tests provided by the role should go here. For example: -->
-
-The role provides these tests:
-
-- `thisrole_test1`: description of the test
-- `thisrole_test2`: description of the test
-- `thisrole_testN`: description of the test
-
-## Dependencies
-
-<!-- A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles. For example: -->
-
-- [amtega.check_platform](https://galaxy.ansible.com/amtega/check_platform)
-- [amtega.proxy_client](https://galaxy.ansible.com/amtega/proxy_client)
-- [amtega.packages](https://galaxy.ansible.com/amtega/packages)
+- `win_domain_ous`: setups windows an active directory domain single OU
 
 ## Usage
-
-<!-- Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too. For example: -->
 
 This is an example playbook:
 
 ```yaml
 ---
 
-- hosts: all
+- hosts: windows_ad_computer
   roles:
-    - role: thisrole
-      thisrole_var1: value1
-      thisrole_var2: value2
-      thisrole_varN: valuen
+    - role: amtega.win_domain_ous
+  vars:
+    win_domain_ous_defaults:
+      path: "OU=Black Casltle,DC=medieval,DC=time"
+
+    win_domain_ous:
+      - name: Commoners
+        description: Black Castle serfs.
+        state: present
+      - name: Knights
+        description: Black Knights.
+        state: present
 ```
 
 ## Testing
 
-<!-- A description of how to run tests of the role if available. For example: -->
+To run test you must pass in the command line the variable `win_domain_ous_tests_host` pointing to a windows host fullfilling the ansible requirements documented in https://docs.ansible.com/ansible/latest/user_guide/windows_setup.html. Also, you must define in the inventory for this host the neccessary variables to connect.
 
-Tests are based on docker containers. You can setup docker engine quickly using the playbook `files/setup.yml` available in the role [amtega.docker_engine](https://galaxy.ansible.com/amtega/docker_engine).
+Additionally the tests requires the following set of variables that can be defined in the inventory or passed in the command line:
 
-Once you have docker, you can run the tests with the following commands:
+- `win_domain_ous_tests_ad_ou`: Base OU to use during tests
+- `win_domain_ous_tests_managed_by`: User to test managed_by OU property
+
+One way to provide all the previous information is calling the testing playbook passing the host to use and an additional vault inventory plus the default one provided for testing, as it's show in this example:
 
 ```shell
-$ cd thisrole/tests
-$ ansible-playbook main.yml
+$ cd amtega.win_domain_groups/tests
+$ ansible-playbook main.yml -e "win_domain_ous_tests_host=test_host" -i inventory -i ~/mycustominventory.yml --vault-id myvault@prompt
 ```
 
 ## License
 
-Copyright (C) <!-- YEAR --> AMTEGA - Xunta de Galicia
+Copyright (C) 2019 AMTEGA - Xunta de Galicia
 
 This role is free software: you can redistribute it and/or modify it under the terms of:
 
@@ -100,6 +63,4 @@ This role is distributed in the hope that it will be useful, but WITHOUT ANY WAR
 
 ## Author Information
 
-- <!-- author _name 1 -->.
-- <!-- author _name 2 -->.
-- <!-- author _name N -->.
+- Daniel Sánchez Fábregas.
