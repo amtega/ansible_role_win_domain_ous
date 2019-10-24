@@ -19,6 +19,7 @@
   register: win_domain_ous_cmdlets_check
   changed_when: no
   check_mode: no
+  no_log: "{{ win_domain_ous_no_log }}"
   tags:
     - role::win_domain_ous
     - role::win_domain_ous::check
@@ -27,6 +28,7 @@
   assert:
     that:
       - (win_domain_ous_cmdlets_check.stdout | trim | bool)
+  no_log: "{{ win_domain_ous_no_log }}"
 
 - name: Setup windows organizational units (OU)
   win_domain_ous:
@@ -66,5 +68,6 @@
   loop_control:
     loop_var: win_domain_ous_item
     label: "{{ win_domain_ous_item.name }}"
+  no_log: "{{ win_domain_ous_no_log }}"
   tags:
     - role::win_domain_ous

@@ -33,3 +33,7 @@ win_domain_ous: []
 # attributes that the ones expected by the ansible win_domain_user module
 
 win_domain_ous_defaults: {}
+
+# Hide sensitive information
+
+win_domain_ous_no_log: yes
