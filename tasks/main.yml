@@ -38,7 +38,9 @@
          | default(omit) }}
     path: >-
       {{ win_domain_ous_item.path
-         | default(win_domain_ous_defaults.path)
+         | normalize_distinguished_name
+         | default(win_domain_ous_defaults.path
+                   | normalize_distinguished_name)
          | default(omit) }}
     description: >-
       {{ win_domain_ous_item.description
