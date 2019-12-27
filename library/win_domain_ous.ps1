@@ -22,7 +22,7 @@ $spec = @{
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
 $name = $module.Params.name
-$path = $module.Params.path
+$path = Get-CanonicalDistinguishedName $module.Params.path
 $description = $module.Params.description
 $managed_by = $module.Params.managed_by
 $protected_from_accidental_deletion = $module.Params.protected_from_accidental_deletion
@@ -87,7 +87,7 @@ Function Get-ActualState($desired_state) {
     $initial_state = [ordered]@{
       name = $ou.Name
       # Get OU from regexp that removes all characters to the first ","
-      path = $ou.DistinguishedName -creplace "^[^,]*,",""
+      path = Get-CanonicalDistinguishedName ($ou.DistinguishedName -creplace "^[^,]*,","")
       description = $ou.Description
       managed_by = $ou.ManagedBy
       protected_from_accidental_deletion = $ou.ProtectedFromAccidentalDeletion
@@ -176,6 +176,11 @@ Function ConvertTo-SerializedState($state) {
         ""
       }
     } ) -join ''
+}
+
+# ------------------------------------------------------------------------------
+Function Get-CanonicalDistinguishedName($distinguishedName) {
+  return ($distinguishedName -split '(,?[a-z]+=)'|%{if ($_ -match '(,?[a-z]+=)'){$_.toupper()}else{$_} }) -join ''
 }
 
 # ··············································································

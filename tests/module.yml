@@ -51,19 +51,24 @@
       register: cmd_result
 
     - name: 'OU - creation check (diff mode)'
+      vars:
+        before_list:
+          - "name: {{ test_name }}"
+          - "path: {{ test_path | normalize_distinguished_name }}"
+          - "state: absent"
+          - ""
+        after_list:
+          - "name: {{ test_name }}"
+          - "path: {{ test_path | normalize_distinguished_name }}"
+          - "protected_from_accidental_deletion: False"
+          - "state: present"
+          - ""
+        before: "{{ before_list | join('\n') }}"
+        after: "{{ after_list | join('\n') }}"
       assert:
         that:
-          - >-
-              cmd_result.diff.before == (
-                "name: " + test_name
-                + "\npath: " + test_path
-                + "\nstate: absent\n")
-          - >-
-              cmd_result.diff.after == (
-                "name: " + test_name
-                + "\npath: " + test_path
-                + "\nprotected_from_accidental_deletion: False"
-                + "\nstate: present\n")
+          - cmd_result.diff.before | lower == before | lower
+          - cmd_result.diff.after | lower == after | lower
 
     - name: 'OU - creation (diff mode) get results'
       win_command: >-
@@ -83,10 +88,10 @@
         that:
           - cmd_result is changed
           - cmd_result.value.name == test_name
-          - cmd_result.value.path == test_path
+          - cmd_result.value.path | normalize_distinguished_name == test_path  | normalize_distinguished_name
           - cmd_result.value.state == 'present'
           - not cmd_result.value.protected_from_accidental_deletion
-          - cmd_result_actual_json.DistinguishedName == ou_full_path
+          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
           - cmd_result_actual_json.Name == test_name
           - not cmd_result_actual_json.ProtectedFromAccidentalDeletion
 
@@ -126,10 +131,10 @@
         that:
           - cmd_result is changed
           - cmd_result.value.name == test_name
-          - cmd_result.value.path == test_path
+          - cmd_result.value.path | normalize_distinguished_name == test_path | normalize_distinguished_name
           - cmd_result.value.state == 'present'
           - not cmd_result.value.protected_from_accidental_deletion
-          - cmd_result_actual_json.DistinguishedName == ou_full_path
+          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
           - cmd_result_actual_json.Name == test_name
           - not cmd_result_actual_json.ProtectedFromAccidentalDeletion
 
@@ -144,7 +149,7 @@
       assert:
         that:
           - test_name == cmd_result.value.name
-          - test_path == cmd_result.value.path
+          - test_path | normalize_distinguished_name == cmd_result.value.path | normalize_distinguished_name
           - False == cmd_result.value.protected_from_accidental_deletion
           - cmd_result.value.state == 'present'
 
@@ -177,12 +182,12 @@
         that:
           - cmd_result is changed
           - cmd_result.value.name == test_name
-          - cmd_result.value.path == test_path
+          - cmd_result.value.path | normalize_distinguished_name == test_path | normalize_distinguished_name
           - cmd_result.value.description == test_description
           - cmd_result.value.managed_by == test_managed_by
           - cmd_result.value.protected_from_accidental_deletion
           - cmd_result.value.state == 'present'
-          - cmd_result_actual_json.DistinguishedName == ou_full_path
+          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
           - cmd_result_actual_json.Name == test_name
           - not cmd_result_actual_json.ProtectedFromAccidentalDeletion
 
@@ -214,12 +219,12 @@
         that:
           - cmd_result is changed
           - cmd_result.value.name == test_name
-          - cmd_result.value.path == test_path
+          - cmd_result.value.path | normalize_distinguished_name == test_path | normalize_distinguished_name
           - cmd_result.value.description == test_description
           - test_managed_by in cmd_result.value.managed_by
           - cmd_result.value.protected_from_accidental_deletion
           - cmd_result.value.state == 'present'
-          - cmd_result_actual_json.DistinguishedName == ou_full_path
+          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name 
           - cmd_result_actual_json.Name == test_name
           - cmd_result_actual_json.ProtectedFromAccidentalDeletion
 
