@@ -4,7 +4,7 @@
 - name: Run win_domain_ous test
   hosts: "{{ win_domain_ous_tests_host }}"
   vars:
-    test_name: "win_domain_ous_test"
+    test_name: "win_domain_ous_test__delete_me_{{ ansible_date_time.iso8601 }}"
     test_path: "{{ win_domain_ous_tests_ad_ou }}"
     test_managed_by: "{{ win_domain_ous_tests_managed_by }}"
     test_description: Test OU. Ansible managed.
