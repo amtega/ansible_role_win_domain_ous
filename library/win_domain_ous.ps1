@@ -19,6 +19,11 @@ $spec = @{
     supports_check_mode = $true
 }
 
+# ------------------------------------------------------------------------------
+Function Get-CanonicalDistinguishedName($distinguishedName) {
+  return ($distinguishedName -split '(,?[a-z]+=)'|%{if ($_ -match '(,?[a-z]+=)'){$_.toupper()}else{$_} }) -join ''
+}
+
 $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
 $name = $module.Params.name
@@ -155,6 +160,11 @@ Function Remove-ConstructedState($recursive) {
     $set_args.Recursive = $true
   }
   Try {
+    $SID_GROUP_ALL=New-Object System.Security.Principal.SecurityIdentifier("S-1-1-0")
+    $acl_ou = Get-ACL -Path ("AD:\"+($ou_full_path))
+    $acl_ou.RemoveAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID_GROUP_ALL,"DeleteChild, DeleteTree, Delete","Deny",([guid]'00000000-0000-0000-0000-000000000000'),"None"))
+    Set-ACL -ACLObject $acl_ou -Path ("AD:\"+($ou_full_path))
+
     Remove-ADOrganizationalUnit $ou_full_path `
       -Confirm:$False `
       -WhatIf:$module.CheckMode `
@@ -176,11 +186,6 @@ Function ConvertTo-SerializedState($state) {
         ""
       }
     } ) -join ''
-}
-
-# ------------------------------------------------------------------------------
-Function Get-CanonicalDistinguishedName($distinguishedName) {
-  return ($distinguishedName -split '(,?[a-z]+=)'|%{if ($_ -match '(,?[a-z]+=)'){$_.toupper()}else{$_} }) -join ''
 }
 
 # ··············································································
