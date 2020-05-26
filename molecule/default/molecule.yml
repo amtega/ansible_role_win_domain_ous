@@ -1,4 +1,5 @@
 ---
+
 dependency:
   name: galaxy
 driver:
@@ -8,13 +9,34 @@ driver:
 lint:
   name: yamllint
 platforms:
-  - name: instance
-    box: ubuntu/xenial64
+  - name: WindowsServer
+    box: jborean93/WindowsServer2016
 provisioner:
   name: ansible
   lint:
     name: ansible-lint
-verifier:
-  name: testinfra
-  lint:
-    name: flake8
+  inventory:
+    hosts:
+      all:
+        vars:
+          win_domain_users_no_log: no
+          win_domain_users_tests_domain_name: test.local
+          win_domain_users_tests_safe_mode_password: insecure_NDYJyQK8Mh7k3yr5
+          win_domain_users_tests_ad_ou_name: Test
+          win_domain_users_tests_ad_ou_base: "DC=test,DC=local"
+          win_domain_users_tests_ad_ou: >-
+            OU={{ win_domain_users_tests_ad_ou_name }},{{
+            win_domain_users_tests_ad_ou_base }}
+          win_domain_users_tests_ad_user: ansible_test_user
+          win_domain_users_tests_ad_password: ansible_test_NDYJyQK8Mh7k3yr5
+        children:
+          windows:
+            hosts:
+              WindowsServer:
+                ansible_host: 127.0.0.1
+                ansible_user: vagrant
+                ansible_password: vagrant
+                ansible_port: 55986
+                ansible_connection: winrm
+                ansible_winrm_transport: ntlm
+                ansible_winrm_server_cert_validation: ignore
