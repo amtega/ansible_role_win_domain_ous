@@ -4,13 +4,13 @@
   win_shell: |-
     $ou = Try {
       Get-ADOrganizationalUnit `
-        -Identity "OU={{ win_domain_users_tests_ad_ou_name }}_{{ suffix }},{{
-                         win_domain_users_tests_ad_ou_base }}"
+        -Identity "OU={{ win_domain_ous_tests_ad_ou_name }}_{{ suffix }},{{
+                         win_domain_ous_tests_ad_ou_base }}"
     } Catch { $null }
     If (-Not $ou) {
       New-ADOrganizationalUnit `
-        -Name "{{ win_domain_users_tests_ad_ou_name }}_{{ suffix }}" `
-        -Path "{{ win_domain_users_tests_ad_ou_base }}"
+        -Name "{{ win_domain_ous_tests_ad_ou_name }}_{{ suffix }}" `
+        -Path "{{ win_domain_ous_tests_ad_ou_base }}"
       "changed"
     }
   changed_when: "'changed' in ou_creation_result.stdout"

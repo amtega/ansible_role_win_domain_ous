@@ -19,16 +19,16 @@ provisioner:
     hosts:
       all:
         vars:
-          win_domain_users_no_log: no
-          win_domain_users_tests_domain_name: test.local
-          win_domain_users_tests_safe_mode_password: insecure_NDYJyQK8Mh7k3yr5
-          win_domain_users_tests_ad_ou_name: Test
-          win_domain_users_tests_ad_ou_base: "DC=test,DC=local"
-          win_domain_users_tests_ad_ou: >-
-            OU={{ win_domain_users_tests_ad_ou_name }},{{
-            win_domain_users_tests_ad_ou_base }}
-          win_domain_users_tests_ad_user: ansible_test_user
-          win_domain_users_tests_ad_password: ansible_test_NDYJyQK8Mh7k3yr5
+          win_domain_ous_no_log: no
+          win_domain_ous_tests_domain_name: test.local
+          win_domain_ous_tests_safe_mode_password: insecure_NDYJyQK8Mh7k3yr5
+          win_domain_ous_tests_ad_ou_name: Test
+          win_domain_ous_tests_ad_ou_base: "DC=test,DC=local"
+          win_domain_ous_tests_ad_ou: >-
+            OU={{ win_domain_ous_tests_ad_ou_name }},{{
+            win_domain_ous_tests_ad_ou_base }}
+          win_domain_ous_tests_ad_user: ansible_test_user
+          win_domain_ous_tests_ad_password: ansible_test_NDYJyQK8Mh7k3yr5
         children:
           windows:
             hosts:
