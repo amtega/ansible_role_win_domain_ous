@@ -1,6 +1,13 @@
 ---
 
 - wait_for_connection:
+  retries: 30
+  delay: 60
+
+- name: Win ping
+  win_ping:
+  retries: 30
+  delay: 60
 
 - name: Install AD
   win_feature:
