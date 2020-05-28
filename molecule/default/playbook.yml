@@ -2,47 +2,5 @@
   hosts: all
   tasks:
 
-    - name: Create several OUs
-      include_role:
-        name: amtega.win_domain_ous
-      vars:
-        win_domain_ous_defaults:
-          path: "{{ win_domain_ous_tests_ad_ou_base }}"
-          protected_from_accidental_deletion: no
-
-        win_domain_ous:
-          - name: "{{ win_domain_ous_tests_ad_ou_name }}_a"
-            state: present
-          - name: "{{ win_domain_ous_tests_ad_ou_name }}_b"
-            description: Test OU, branch B
-            managed_by: CN=vagrant,CN=Users,DC=test,DC=local
-            state: present
-
-    - name: Modify several OUs
-      include_role:
-        name: amtega.win_domain_ous
-      vars:
-        win_domain_ous_defaults:
-          path: "{{ win_domain_ous_tests_ad_ou_base }}"
-
-        win_domain_ous:
-          - name: "{{ win_domain_ous_tests_ad_ou_name }}_c"
-            description: Test OU, branch C
-            managed_by: Administrator
-            state: present
-          - name: "{{ win_domain_ous_tests_ad_ou_name }}_d"
-            description: Test OU, branch D
-            state: present
-
-    - name: Remove several OUs
-      include_role:
-        name: amtega.win_domain_ous
-      vars:
-        win_domain_ous_defaults:
-          path: "{{ win_domain_ous_tests_ad_ou_base }}"
-
-        win_domain_ous:
-          - name: "{{ win_domain_ous_tests_ad_ou_name }}_e"
-            state: absent
-          - name: "{{ win_domain_ous_tests_ad_ou_name }}_f"
-            state: absent
+  - import_tasks: playbook_module.yml
+  - import_tasks: playbook_role.yml
