@@ -1,0 +1,30 @@
+---
+
+- name: Create test OUs
+  win_shell: |-
+    $ou = Try {
+      Get-ADOrganizationalUnit `
+        -Identity "OU={{ win_domain_ous_tests_ad_ou_name }}_{{ suffix }},{{
+                         win_domain_ous_tests_ad_ou_base }}"
+    } Catch { $null }
+    If (-Not $ou) {
+      New-ADOrganizationalUnit `
+        -Name "{{ win_domain_ous_tests_ad_ou_name }}_{{ suffix }}" `
+        -Path "{{ win_domain_ous_tests_ad_ou_base }}"
+      "changed"
+    }
+  changed_when: "'changed' in ou_creation_result.stdout"
+  failed_when: >-
+    'Unable to find a default server with Active Directory Web Services
+    running' in ou_creation_result.stderr
+  loop:
+    - c
+    - d
+    - e
+    - f
+  loop_control:
+    loop_var: suffix
+  until: ou_creation_result is successful
+  retries: 30
+  delay: 15
+  register: ou_creation_result

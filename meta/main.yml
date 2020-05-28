@@ -18,4 +18,14 @@ galaxy_info:
     - organizationalunit
     - ou
 
-dependencies: []
+dependencies:
+  - role: amtega.select_hostvars
+    vars:
+      select_hostvars_query:
+        pattern: "^win_domain_ous_.*"
+        exclude_pattern: "^win_domain_ous_defaults$"
+        fact_name: win_domain_ous_hostvars
+        output_type: list
+    when: win_domain_ous_load_from_hostvars
+    tags:
+      - role::win_domain_ous

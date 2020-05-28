@@ -34,6 +34,13 @@ win_domain_ous: []
 
 win_domain_ous_defaults: {}
 
+# Indicate `win_domain_ous` must be loaded also from host variables. Any host
+# variable that begins with "win_domain_ous_*" and contains the necessary
+# attributes will be loaded as an item to manage by the role. The variables must
+# follow the structure detailed before for `win_domain_ous`
+
+win_domain_ous_load_from_hostvars: no
+
 # Hide sensitive information
 
 win_domain_ous_no_log: yes

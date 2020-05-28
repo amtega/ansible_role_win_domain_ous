@@ -2,6 +2,10 @@
 
 - name: Test library
   vars:
+    test_name: "{{ win_domain_ous_tests_ad_ou_name }}_mod"
+    test_path: "{{ win_domain_ous_tests_ad_ou_base }}"
+    test_description: Test OU, branch module_test
+    test_managed_by: CN=vagrant,CN=Users,DC=test,DC=local
     ou_full_path: "OU={{ test_name }},{{ test_path }}"
   block:
     - name: Load module win_domain_ous
@@ -224,7 +228,7 @@
           - test_managed_by in cmd_result.value.managed_by
           - cmd_result.value.protected_from_accidental_deletion
           - cmd_result.value.state == 'present'
-          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name 
+          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
           - cmd_result_actual_json.Name == test_name
           - cmd_result_actual_json.ProtectedFromAccidentalDeletion
 
