@@ -3,4 +3,5 @@
   tasks:
 
   - import_tasks: playbook_module.yml
+    tags: molecule-idempotence-notest
   - import_tasks: playbook_role.yml

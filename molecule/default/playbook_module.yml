@@ -1,0 +1,281 @@
+---
+
+- name: Test library
+  vars:
+    test_name: "{{ win_domain_ous_tests_ad_ou_name }}_mod"
+    test_path: "{{ win_domain_ous_tests_ad_ou_base }}"
+    test_description: Test OU, branch module_test
+    test_managed_by: CN=vagrant,CN=Users,DC=test,DC=local
+    ou_full_path: "OU={{ test_name }},{{ test_path }}"
+  block:
+    - name: Load module win_domain_ous
+      include_role:
+        name: amtega.win_domain_ous
+
+    - name: Clean test OU - unprotect
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        protected_from_accidental_deletion: no
+        state: present
+
+    - name: Clean test OU
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        state: absent
+
+    - name: 'OU - creation (check mode)'
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        state: present
+      register: cmd_result
+      check_mode: yes
+
+    - name: 'OU - creation get results (check mode)'
+      win_command: >-
+        powershell.exe "Try { If ( Get-ADOrganizationalUnit -Identity '{{ ou_full_path }}' ) { 'exists' } } Catch { 'absent' }"
+      register: cmd_result_actual
+      changed_when: no
+
+    - name: 'OU - creation check results (check mode)'
+      assert:
+        that:
+          - cmd_result is changed
+          - cmd_result_actual.stdout == 'absent\r\n'
+
+    - name: 'OU - creation (diff mode)'
+      diff: yes
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        protected_from_accidental_deletion: no
+        state: present
+      register: cmd_result
+
+    - name: 'OU - creation check (diff mode)'
+      vars:
+        before_list:
+          - "name: {{ test_name }}"
+          - "path: {{ test_path | normalize_distinguished_name }}"
+          - "state: absent"
+          - ""
+        after_list:
+          - "name: {{ test_name }}"
+          - "path: {{ test_path | normalize_distinguished_name }}"
+          - "protected_from_accidental_deletion: False"
+          - "state: present"
+          - ""
+        before: "{{ before_list | join('\n') }}"
+        after: "{{ after_list | join('\n') }}"
+      assert:
+        that:
+          - cmd_result.diff.before | lower == before | lower
+          - cmd_result.diff.after | lower == after | lower
+
+    - name: 'OU - creation (diff mode) get results'
+      win_command: >-
+        powershell.exe "
+            Get-ADOrganizationalUnit `
+              -Identity '{{ ou_full_path }}' `
+              -Properties * `
+              -ErrorAction:Ignore `
+            | ConvertTo-Json -Depth 1 "
+      register: cmd_result_actual
+      changed_when: no
+
+    - name: 'OU - creation (diff mode) check results'
+      vars:
+        cmd_result_actual_json: "{{ cmd_result_actual.stdout | from_json }}"
+      assert:
+        that:
+          - cmd_result is changed
+          - cmd_result.value.name == test_name
+          - cmd_result.value.path | normalize_distinguished_name == test_path  | normalize_distinguished_name
+          - cmd_result.value.state == 'present'
+          - not cmd_result.value.protected_from_accidental_deletion
+          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
+          - cmd_result_actual_json.Name == test_name
+          - not cmd_result_actual_json.ProtectedFromAccidentalDeletion
+
+    - name: Clean test OU
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        state: absent
+
+    - name: 'OU - creation'
+      diff: no
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        protected_from_accidental_deletion: no
+        state: present
+      register: cmd_result
+
+    - debug:
+        var: cmd_result
+
+    - name: 'OU - creation get results'
+      win_command: >-
+        powershell.exe "
+            Get-ADOrganizationalUnit `
+              -Identity '{{ ou_full_path }}' `
+              -Properties * `
+              -ErrorAction:Ignore `
+            | ConvertTo-Json -Depth 1 "
+      register: cmd_result_actual
+      changed_when: no
+
+    - name: 'OU - creation check results'
+      vars:
+        cmd_result_actual_json: "{{ cmd_result_actual.stdout | from_json }}"
+      assert:
+        that:
+          - cmd_result is changed
+          - cmd_result.value.name == test_name
+          - cmd_result.value.path | normalize_distinguished_name == test_path | normalize_distinguished_name
+          - cmd_result.value.state == 'present'
+          - not cmd_result.value.protected_from_accidental_deletion
+          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
+          - cmd_result_actual_json.Name == test_name
+          - not cmd_result_actual_json.ProtectedFromAccidentalDeletion
+
+    - name: OU - query
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        state: query
+      register: cmd_result
+
+    - name: 'OU - query check results'
+      assert:
+        that:
+          - test_name == cmd_result.value.name
+          - test_path | normalize_distinguished_name == cmd_result.value.path | normalize_distinguished_name
+          - False == cmd_result.value.protected_from_accidental_deletion
+          - cmd_result.value.state == 'present'
+
+    - name: 'OU - update (check mode)'
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        description: "{{ test_description }}"
+        managed_by: "{{ test_managed_by }}"
+        protected_from_accidental_deletion: yes
+        state: present
+      register: cmd_result
+      check_mode: yes
+
+    - name: 'OU - update (check mode) get results'
+      win_command: >-
+        powershell.exe "
+            Get-ADOrganizationalUnit `
+              -Identity '{{ ou_full_path }}' `
+              -Properties * `
+              -ErrorAction:Ignore `
+            | ConvertTo-Json -Depth 1 "
+      register: cmd_result_actual
+      changed_when: no
+
+    - name: 'OU - update (check mode) check results'
+      vars:
+        cmd_result_actual_json: "{{ cmd_result_actual.stdout | from_json }}"
+      assert:
+        that:
+          - cmd_result is changed
+          - cmd_result.value.name == test_name
+          - cmd_result.value.path | normalize_distinguished_name == test_path | normalize_distinguished_name
+          - cmd_result.value.description == test_description
+          - cmd_result.value.managed_by == test_managed_by
+          - cmd_result.value.protected_from_accidental_deletion
+          - cmd_result.value.state == 'present'
+          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
+          - cmd_result_actual_json.Name == test_name
+          - not cmd_result_actual_json.ProtectedFromAccidentalDeletion
+
+    - name: 'OU - update'
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        description: "{{ test_description }}"
+        managed_by: "{{ test_managed_by }}"
+        protected_from_accidental_deletion: yes
+        state: present
+      register: cmd_result
+
+    - name: 'OU - update get results'
+      win_command: >-
+        powershell.exe "
+            Get-ADOrganizationalUnit `
+              -Identity '{{ ou_full_path }}' `
+              -Properties * `
+              -ErrorAction:Ignore `
+            | ConvertTo-Json -Depth 1 "
+      register: cmd_result_actual
+      changed_when: no
+
+    - name: 'OU - update check results'
+      vars:
+        cmd_result_actual_json: "{{ cmd_result_actual.stdout | from_json }}"
+      assert:
+        that:
+          - cmd_result is changed
+          - cmd_result.value.name == test_name
+          - cmd_result.value.path | normalize_distinguished_name == test_path | normalize_distinguished_name
+          - cmd_result.value.description == test_description
+          - test_managed_by in cmd_result.value.managed_by
+          - cmd_result.value.protected_from_accidental_deletion
+          - cmd_result.value.state == 'present'
+          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
+          - cmd_result_actual_json.Name == test_name
+          - cmd_result_actual_json.ProtectedFromAccidentalDeletion
+
+    - name: Unprotect test OU
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        protected_from_accidental_deletion: no
+        state: present
+
+    - name: 'OU - remove (check mode)'
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        state: absent
+      register: cmd_result
+      check_mode: yes
+
+    - name: 'OU - remove (check mode) get results'
+      win_command: >-
+        powershell.exe "Try { If ( Get-ADOrganizationalUnit -Identity '{{ ou_full_path }}' ) { 'exists' } } Catch { 'absent' }"
+      register: cmd_result_actual
+      changed_when: no
+
+    - name: 'OU - remove (check mode) check results'
+      assert:
+        that:
+          - cmd_result is changed
+          - cmd_result.value.state == 'absent'
+          - cmd_result_actual.stdout == 'exists\r\n'
+
+    - name: 'OU - remove'
+      win_domain_ous:
+        name: "{{ test_name }}"
+        path: "{{ test_path }}"
+        state: absent
+      register: cmd_result
+
+    - name: 'OU - remove get results'
+      win_command: >-
+        powershell.exe "Try { If ( Get-ADOrganizationalUnit -Identity '{{ ou_full_path }}' ) { 'exists' } } Catch { 'absent' }"
+      register: cmd_result_actual
+      changed_when: no
+
+    - name: 'OU - remove check results'
+      assert:
+        that:
+          - cmd_result is changed
+          - cmd_result.value.state == 'absent'
+          - cmd_result_actual.stdout == 'absent\r\n'

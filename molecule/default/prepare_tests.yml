@@ -1,6 +1,6 @@
 ---
 
-- name: Create OU
+- name: Create test OUs
   win_shell: |-
     $ou = Try {
       Get-ADOrganizationalUnit `
