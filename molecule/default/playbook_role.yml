@@ -1,3 +1,5 @@
+---
+
 - name: Create several OUs
   include_role:
     name: amtega.win_domain_ous
