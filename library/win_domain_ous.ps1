@@ -20,6 +20,25 @@ $spec = @{
 }
 
 # ------------------------------------------------------------------------------
+Function ConvertTo-DistinguishedName($identification) {
+  If ($identification) {
+    Try {
+      If ($identification -match "^(CN|DC|OU)=") {
+        # DistinguishedName
+        $result = Get-ADObject -Identity $identification @extra_args
+      } Else {
+        # samaccountname
+        $result = Get-ADObject -Filter {samaccountname -eq $identification} @extra_args
+      }
+      return $result.DistinguishedName
+    } Catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
+      $module.FailJson("Object '$identification' not found in AD", $_)
+    }
+  }
+  return $identification
+}
+
+# ------------------------------------------------------------------------------
 Function Get-CanonicalDistinguishedName($distinguishedName) {
   return ($distinguishedName -split '(,?[a-z]+=)'|%{if ($_ -match '(,?[a-z]+=)'){$_.toupper()}else{$_} }) -join ''
 }
@@ -63,6 +82,7 @@ if ($state -ne 'present')
 }
 
 If ($state -eq "present") {
+  $managed_by = ConvertTo-DistinguishedName $managed_by
   $desired_state = [ordered]@{
     name = $name
     path = $path
@@ -130,6 +150,7 @@ Function Set-ConstructedState($initial_state, $desired_state) {
         } Catch {
           $module.FailJson("Failed to set the OU property $ou_full_path[$property]: $($_.Exception.Message)", $_)
         }
+        # $module.Warn("Debug: ['$property'] '$($initial_state[$property])' → '$($desired_state[$property])' ")
         $module.Result.changed = $true
     }
   }
@@ -149,7 +170,7 @@ Function Add-ConstructedState($desired_state) {
     } Catch {
       $module.FailJson("Failed to create the OU ${ou_full_path}: $($_.Exception.Message)", $_)
     }
-
+  # $module.Warn("Debug: Add-ConstructedState")
   $module.Result.changed = $true
 }
 
@@ -160,9 +181,9 @@ Function Remove-ConstructedState($recursive) {
     $set_args.Recursive = $true
   }
   Try {
-    $SID_GROUP_ALL=New-Object System.Security.Principal.SecurityIdentifier("S-1-1-0")
+    $SID_GROUP_ALL = New-Object System.Security.Principal.SecurityIdentifier("S-1-1-0")
     $acl_ou = Get-ACL -Path ("AD:\"+($ou_full_path))
-    $acl_ou.RemoveAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID_GROUP_ALL,"DeleteChild, DeleteTree, Delete","Deny",([guid]'00000000-0000-0000-0000-000000000000'),"None"))
+    $null = $acl_ou.RemoveAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID_GROUP_ALL,"DeleteChild, DeleteTree, Delete","Deny",([guid]'00000000-0000-0000-0000-000000000000'),"None"))
     Set-ACL -ACLObject $acl_ou -Path ("AD:\"+($ou_full_path))
 
     Remove-ADOrganizationalUnit $ou_full_path `
@@ -172,7 +193,7 @@ Function Remove-ConstructedState($recursive) {
   } Catch {
     $module.FailJson("Failed to remove the OU ${ou_full_path}: $($_.Exception.Message)", $_)
   }
-
+  # $module.Warn("Debug: Remove-ConstructedState")
   $module.Result.changed = $true
 }
 
@@ -191,6 +212,9 @@ Function ConvertTo-SerializedState($state) {
 # ··············································································
 
 $initial_state = Get-ActualState $desired_state
+
+# $module.Warn('[Debug] initial_state:' + $(ConvertTo-SerializedState $initial_state))
+# $module.Warn('[Debug] desired_state:' + $(ConvertTo-SerializedState $desired_state))
 
 If ($desired_state.state -eq "query") {
   $module.Result.value = $initial_state

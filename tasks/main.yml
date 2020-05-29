@@ -69,5 +69,12 @@
     loop_var: win_domain_ous_item
     label: "{{ win_domain_ous_item.name }}"
   no_log: "{{ win_domain_ous_no_log }}"
+  vars:
+    win_domain_ous_to_manage: >-
+      {{ win_domain_ous
+         + ((win_domain_ous_load_from_hostvars)
+            | ternary(win_domain_ous_hostvars
+                      | default([])
+                      | flatten, [])) }}
   tags:
     - role::win_domain_ous

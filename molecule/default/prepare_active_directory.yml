@@ -1,0 +1,61 @@
+---
+
+- wait_for_connection:
+  retries: 30
+  delay: 60
+
+- name: Win ping
+  win_ping:
+  retries: 30
+  delay: 60
+
+- name: Install AD
+  win_feature:
+    name: AD-Domain-Services
+    include_management_tools: yes
+    include_sub_features: yes
+    state: present
+  register: ad_install_result
+  until: ad_install_result is not failed
+  retries: 30
+  delay: 60
+
+- name: Ensure the RSAT-AD-PowerShell feature is installed
+  win_feature:
+    name:
+      - RSAT-AD-PowerShell
+    state: present
+  register: ad_feature_result
+
+- name: Install domain
+  win_domain:
+    dns_domain_name: '{{ win_domain_ous_tests_domain_name }}'
+    safe_mode_password: '{{ win_domain_ous_tests_safe_mode_password }}'
+  register: domain_install_result
+  until: domain_install_result is successful
+  retries: 30
+  delay: 15
+
+- name: Reboot server
+  win_reboot:
+    msg: "Installing AD. Rebooting..."
+    pre_reboot_delay: 15
+  when: >-
+    ad_install_result.reboot_required
+    or ad_feature_result.reboot_required
+    or domain_install_result.changed
+
+- wait_for_connection:
+
+- name: Win ping
+  win_ping:
+
+- name: Check Active Directoy Web Services
+  win_shell: |-
+    $test = Try { Get-AdDomain } Catch { $null }
+    If ($test) { "OK" } else { "Failed" }
+  register: check_adws_result
+  failed_when: "'Failed' in check_adws_result.stdout"
+  until: "'OK' in check_adws_result.stdout"
+  retries: 30
+  delay: 60
