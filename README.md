@@ -37,18 +37,11 @@ This is an example playbook:
 
 ## Testing
 
-To run test you must pass in the command line the variable `win_domain_ous_tests_host` pointing to a windows host fullfilling the ansible requirements documented in https://docs.ansible.com/ansible/latest/user_guide/windows_setup.html. Also, you must define in the inventory for this host the neccessary variables to connect.
-
-Additionally the tests requires the following set of variables that can be defined in the inventory or passed in the command line:
-
-- `win_domain_ous_tests_ad_ou`: Base OU to use during tests
-- `win_domain_ous_tests_managed_by`: User to test managed_by OU property
-
-One way to provide all the previous information is calling the testing playbook passing the host to use and an additional vault inventory plus the default one provided for testing, as it's show in this example:
+Tests are based on molecule with vagrant virtual machines. Follow the instructions in `molecule/default/INSTALL.rst`.
 
 ```shell
-$ cd amtega.win_domain_groups/tests
-$ ansible-playbook main.yml -e "win_domain_ous_tests_host=test_host" -i inventory -i ~/mycustominventory.yml --vault-id myvault@prompt
+$ cd cd amtega.win_domain_groups
+$ molecule test
 ```
 
 ## License
