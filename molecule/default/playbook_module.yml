@@ -34,8 +34,13 @@
       check_mode: yes
 
     - name: 'OU - creation get results (check mode)'
-      win_command: >-
-        powershell.exe "Try { If ( Get-ADOrganizationalUnit -Identity '{{ ou_full_path }}' ) { 'exists' } } Catch { 'absent' }"
+      win_command: |-
+        powershell.exe "
+          Try {
+            If ( Get-ADOrganizationalUnit -Identity '{{ ou_full_path }}' ) {
+              'exists'
+            }
+          } Catch { 'absent' }"
       register: cmd_result_actual
       changed_when: no
 
@@ -75,7 +80,7 @@
           - cmd_result.diff.after | lower == after | lower
 
     - name: 'OU - creation (diff mode) get results'
-      win_command: >-
+      win_command: |-
         powershell.exe "
             Get-ADOrganizationalUnit `
               -Identity '{{ ou_full_path }}' `
@@ -92,10 +97,16 @@
         that:
           - cmd_result is changed
           - cmd_result.value.name == test_name
-          - cmd_result.value.path | normalize_distinguished_name == test_path  | normalize_distinguished_name
+          - >-
+            cmd_result.value.path
+            | normalize_distinguished_name == test_path
+            | normalize_distinguished_name
           - cmd_result.value.state == 'present'
           - not cmd_result.value.protected_from_accidental_deletion
-          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
+          - >-
+            cmd_result_actual_json.DistinguishedName
+            | normalize_distinguished_name == ou_full_path
+            | normalize_distinguished_name
           - cmd_result_actual_json.Name == test_name
           - not cmd_result_actual_json.ProtectedFromAccidentalDeletion
 
@@ -118,7 +129,7 @@
         var: cmd_result
 
     - name: 'OU - creation get results'
-      win_command: >-
+      win_command: |-
         powershell.exe "
             Get-ADOrganizationalUnit `
               -Identity '{{ ou_full_path }}' `
@@ -135,10 +146,16 @@
         that:
           - cmd_result is changed
           - cmd_result.value.name == test_name
-          - cmd_result.value.path | normalize_distinguished_name == test_path | normalize_distinguished_name
+          - >-
+            cmd_result.value.path
+            | normalize_distinguished_name == test_path
+            | normalize_distinguished_name
           - cmd_result.value.state == 'present'
           - not cmd_result.value.protected_from_accidental_deletion
-          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
+          - >-
+            cmd_result_actual_json.DistinguishedName
+            | normalize_distinguished_name == ou_full_path
+            | normalize_distinguished_name
           - cmd_result_actual_json.Name == test_name
           - not cmd_result_actual_json.ProtectedFromAccidentalDeletion
 
@@ -153,7 +170,10 @@
       assert:
         that:
           - test_name == cmd_result.value.name
-          - test_path | normalize_distinguished_name == cmd_result.value.path | normalize_distinguished_name
+          - >-
+            test_path
+            | normalize_distinguished_name == cmd_result.value.path
+            | normalize_distinguished_name
           - False == cmd_result.value.protected_from_accidental_deletion
           - cmd_result.value.state == 'present'
 
@@ -169,7 +189,7 @@
       check_mode: yes
 
     - name: 'OU - update (check mode) get results'
-      win_command: >-
+      win_command: |-
         powershell.exe "
             Get-ADOrganizationalUnit `
               -Identity '{{ ou_full_path }}' `
@@ -186,12 +206,18 @@
         that:
           - cmd_result is changed
           - cmd_result.value.name == test_name
-          - cmd_result.value.path | normalize_distinguished_name == test_path | normalize_distinguished_name
+          - >-
+            cmd_result.value.path
+            | normalize_distinguished_name == test_path
+            | normalize_distinguished_name
           - cmd_result.value.description == test_description
           - cmd_result.value.managed_by == test_managed_by
           - cmd_result.value.protected_from_accidental_deletion
           - cmd_result.value.state == 'present'
-          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
+          - >-
+            cmd_result_actual_json.DistinguishedName
+            | normalize_distinguished_name == ou_full_path
+            | normalize_distinguished_name
           - cmd_result_actual_json.Name == test_name
           - not cmd_result_actual_json.ProtectedFromAccidentalDeletion
 
@@ -206,7 +232,7 @@
       register: cmd_result
 
     - name: 'OU - update get results'
-      win_command: >-
+      win_command: |-
         powershell.exe "
             Get-ADOrganizationalUnit `
               -Identity '{{ ou_full_path }}' `
@@ -223,12 +249,18 @@
         that:
           - cmd_result is changed
           - cmd_result.value.name == test_name
-          - cmd_result.value.path | normalize_distinguished_name == test_path | normalize_distinguished_name
+          - >
+            cmd_result.value.path
+            | normalize_distinguished_name == test_path
+            | normalize_distinguished_name
           - cmd_result.value.description == test_description
           - test_managed_by in cmd_result.value.managed_by
           - cmd_result.value.protected_from_accidental_deletion
           - cmd_result.value.state == 'present'
-          - cmd_result_actual_json.DistinguishedName | normalize_distinguished_name == ou_full_path | normalize_distinguished_name
+          - >-
+            cmd_result_actual_json.DistinguishedName
+            | normalize_distinguished_name == ou_full_path
+            | normalize_distinguished_name
           - cmd_result_actual_json.Name == test_name
           - cmd_result_actual_json.ProtectedFromAccidentalDeletion
 
@@ -248,8 +280,13 @@
       check_mode: yes
 
     - name: 'OU - remove (check mode) get results'
-      win_command: >-
-        powershell.exe "Try { If ( Get-ADOrganizationalUnit -Identity '{{ ou_full_path }}' ) { 'exists' } } Catch { 'absent' }"
+      win_command: |-
+        powershell.exe "
+          Try {
+            If ( Get-ADOrganizationalUnit -Identity '{{ ou_full_path }}' ) {
+              'exists'
+            }
+          } Catch { 'absent' }"
       register: cmd_result_actual
       changed_when: no
 
@@ -268,8 +305,13 @@
       register: cmd_result
 
     - name: 'OU - remove get results'
-      win_command: >-
-        powershell.exe "Try { If ( Get-ADOrganizationalUnit -Identity '{{ ou_full_path }}' ) { 'exists' } } Catch { 'absent' }"
+      win_command: |-
+        powershell.exe "
+          Try {
+            If ( Get-ADOrganizationalUnit -Identity '{{ ou_full_path }}' ) {
+              'exists'
+            }
+          } Catch { 'absent' }"
       register: cmd_result_actual
       changed_when: no
 
