@@ -253,7 +253,8 @@ If ($desired_state.state -eq "present") {
       If (-not $in_desired_state) {
         Set-ConstructedState $initial_state $desired_state
       }
-    } Else { # $desired_state.state = "Present" & $initial_state.state = "Absent"
+    } Else {
+      # $desired_state.state = "Present" & $initial_state.state = "Absent"
       Add-ConstructedState $desired_state
     }
   } Else { # $desired_state.state = "Absent"
