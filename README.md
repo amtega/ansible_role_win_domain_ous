@@ -37,7 +37,8 @@ This is an example playbook:
 
 ## Testing
 
-Tests are based on molecule with vagrant virtual machines. Follow the instructions in `molecule/default/INSTALL.rst`.
+Tests are based on [molecule with virtual machines](https://molecule.readthedocs.io/en/latest/installation.html).
+
 
 ```shell
 $ cd cd amtega.win_domain_groups
@@ -46,7 +47,7 @@ $ molecule test
 
 ## License
 
-Copyright (C) 2019 AMTEGA - Xunta de Galicia
+Copyright (C) 2020 AMTEGA - Xunta de Galicia
 
 This role is free software: you can redistribute it and/or modify it under the terms of:
 
