@@ -1,6 +1,6 @@
 ---
 
-- name: Test library
+- name: Converge module
   vars:
     test_name: "{{ win_domain_ous_tests_ad_ou_name }}_mod"
     test_path: "{{ win_domain_ous_tests_ad_ou_base }}"

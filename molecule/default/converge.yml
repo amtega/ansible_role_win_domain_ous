@@ -1,0 +1,9 @@
+---
+
+- name: Converge
+  hosts: molecule_hosts
+  tasks:
+    - import_tasks: converge_module.yml
+      tags: molecule-idempotence-notest
+
+    - import_tasks: converge_role.yml

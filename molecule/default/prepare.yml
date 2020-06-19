@@ -1,9 +1,8 @@
 ---
 
 - name: Prepare
-  hosts: all
+  hosts: molecule_hosts
   gather_facts: yes
   tasks:
-
     - import_tasks: prepare_active_directory.yml
     - import_tasks: prepare_tests.yml

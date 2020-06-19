@@ -6,18 +6,47 @@ driver:
   name: vagrant
   provider:
     name: virtualbox
-lint:
-  name: yamllint
+lint: |
+  set -e
+  export ANSIBLE_ACTION_PLUGINS=$PWD/action_plugins
+  export ANSIBLE_BECOME_PLUGINS=$PWD/become_plugins
+  export ANSIBLE_CACHE_PLUGINS=$PWD/cache_plugins
+  export ANSIBLE_CALLBACK_PLUGINS=$PWD/callback_plugins
+  export ANSIBLE_CLICONF_PLUGINS=$PWD/cliconf_plugins
+  export ANSIBLE_CONNECTION_PLUGINS=$PWD/connection_plugins
+  export ANSIBLE_DOC_FRAGMENT_PLUGINS=$PWD/doc_fragment_plugins
+  export ANSIBLE_FILTER_PLUGINS=$PWD/filter_plugins
+  export ANSIBLE_HTTPAPI_PLUGINS=$PWD/httpapi_plugins
+  export ANSIBLE_INVENTORY_PLUGINS=$PWD/inventory_plugins
+  export ANSIBLE_LIBRARY=$PWD/library
+  export ANSIBLE_LOOKUP_PLUGINS=$PWD/lookup_plugins
+  export ANSIBLE_NETCONF_PLUGINS=$PWD/netconf_plugins
+  export ANSIBLE_STRATEGY_PLUGINS=$PWD/strategy_plugins
+  export ANSIBLE_TERMINAL_PLUGINS=$PWD/terminal_plugins
+  export ANSIBLE_TEST_PLUGINS=$PWD/test_plugins
+  export ANSIBLE_VARS_PLUGINS=$PWD/vars_plugins
+  yamllint .
+  ansible-lint
+  flake8
 platforms:
-  - name: WindowsServer
+  - name: "WindowsServer-${INSTANCE_UUID:-1}"
     box: jborean93/WindowsServer2016
+    groups:
+      - molecule_hosts
 provisioner:
   name: ansible
-  lint:
-    name: ansible-lint
   inventory:
     hosts:
-      all:
+      molecule_hosts:
+        hosts:
+          WindowsServer-${INSTANCE_UUID:-1}:
+            ansible_host: 127.0.0.1
+            ansible_user: vagrant
+            ansible_password: vagrant
+            ansible_port: 55986
+            ansible_connection: winrm
+            ansible_winrm_transport: ntlm
+            ansible_winrm_server_cert_validation: ignore
         vars:
           win_domain_ous_no_log: no
           win_domain_ous_tests_domain_name: test.local
@@ -29,14 +58,6 @@ provisioner:
             win_domain_ous_tests_ad_ou_base }}
           win_domain_ous_tests_ad_user: ansible_test_user
           win_domain_ous_tests_ad_password: ansible_test_NDYJyQK8Mh7k3yr5
-        children:
-          windows:
-            hosts:
-              WindowsServer:
-                ansible_host: 127.0.0.1
-                ansible_user: vagrant
-                ansible_password: vagrant
-                ansible_port: 55986
-                ansible_connection: winrm
-                ansible_winrm_transport: ntlm
-                ansible_winrm_server_cert_validation: ignore
+
+verifier:
+  name: ansible
