@@ -41,8 +41,9 @@ Tests are based on [molecule with vagrant virtual machines](https://molecule.rea
 
 
 ```shell
-$ cd cd amtega.win_domain_groups
-$ molecule test
+cd amtega.win_domain_ous
+
+molecule test
 ```
 
 ## License
