@@ -1,6 +1,7 @@
 ---
 
-- wait_for_connection:
+- name: Wait for connection
+  wait_for_connection:
   retries: 30
   delay: 60
 
@@ -43,9 +44,10 @@
   when: >-
     ad_install_result.reboot_required
     or ad_feature_result.reboot_required
-    or domain_install_result.changed
+    or domain_install_result is changed
 
-- wait_for_connection:
+- name: Wait for connection
+  wait_for_connection:
 
 - name: Win ping
   win_ping:

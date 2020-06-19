@@ -1,6 +1,6 @@
 ---
 
-- name: Create several OUs
+- name: Converge - Create several OUs
   include_role:
     name: amtega.win_domain_ous
   vars:
@@ -16,7 +16,7 @@
         managed_by: CN=vagrant,CN=Users,DC=test,DC=local
         state: present
 
-- name: Modify several OUs
+- name: Converge - Modify several OUs
   include_role:
     name: amtega.win_domain_ous
   vars:
@@ -32,7 +32,7 @@
         description: Test OU, branch D
         state: present
 
-- name: Remove several OUs
+- name: Converge- Remove several OUs
   include_role:
     name: amtega.win_domain_ous
   vars:
