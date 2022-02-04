@@ -3,11 +3,12 @@
 
 galaxy_info:
   role_name: win_domain_ous
+  namespace: amtega
   author: Daniel Sánchez Fábregas
   description: Manages Windows Active Directory Organizational Units
   company: AMTEGA - Xunta de Galicia
   license: GPLv3 or EUPL
-  min_ansible_version: 2.9
+  min_ansible_version: 2.10
   platforms:
     - name: Windows
       versions:
