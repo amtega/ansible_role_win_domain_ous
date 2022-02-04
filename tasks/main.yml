@@ -4,13 +4,17 @@
 - name: Check availability of cmdlets
   win_shell: |
     if (
-        (Get-Command -Name Get-ADOrganizationalUnit -ErrorAction SilentlyContinue) `
+        (Get-Command -Name Get-ADOrganizationalUnit `
+                          -ErrorAction SilentlyContinue) `
         -and `
-        (Get-Command -Name Set-ADOrganizationalUnit -ErrorAction SilentlyContinue) `
+        (Get-Command -Name Set-ADOrganizationalUnit `
+                           -ErrorAction SilentlyContinue) `
         -and `
-        (Get-Command -Name New-ADOrganizationalUnit -ErrorAction SilentlyContinue) `
+        (Get-Command -Name New-ADOrganizationalUnit `
+                           -ErrorAction SilentlyContinue) `
         -and `
-        (Get-Command -Name Remove-ADOrganizationalUnit -ErrorAction SilentlyContinue) `
+        (Get-Command -Name Remove-ADOrganizationalUnit `
+                           -ErrorAction SilentlyContinue) `
     ) {
         $true
     } else {

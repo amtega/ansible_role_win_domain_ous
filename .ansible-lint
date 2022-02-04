@@ -2,3 +2,7 @@
 
 exclude_paths:
   - meta
+  - molecule/default/converge_module.yml
+  - molecule/default/converge_role.yml
+  - molecule/default/prepare_active_directory.yml
+  - molecule/default/prepare_tests.yml
